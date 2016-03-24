@@ -42,14 +42,37 @@ class Vendor
 
     public function getVendorSales($vendorId)
     {
-
         $sales = $this->connection->orderedQuery('sales', 'vendor_id', $vendorId, 'sale_date');
+        $customers = $this->connection->query('customers');
+        $allCustomers = [];
+        foreach ($customers as $customer)
+        {
+           $customers = array('id' =>$customer['id'], 'name' => $customer['name'],'surname' =>$customer['surname']);
+            array_push($allCustomers, $customers);
+
+        }
+
         $allData = [];
         foreach ($sales as $sale)
         {
-            $data = array('id' => $sale['id'], 'date' => $sale['sale_date'], 'customer' => $sale['customer_id'], 'total' => $sale['sum_total']);
-            array_push($allData, $data);
+            foreach ($allCustomers as $customer)
+            {
+              
+                if($sale['customer_id'] == $customer['id'])
+                {
+                    $customerName = $customer['name'].' '.$customer['surname'];
+                    $data = array('id' => $sale['id'], 'date' => $sale['sale_date'],'customer' => $customerName, 'total' => $sale['sum_total']);
 
+
+                }
+
+
+            }
+
+
+
+
+            array_push($allData, $data);
         }
         return $allData;
 
